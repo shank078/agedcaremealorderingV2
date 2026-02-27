@@ -1,0 +1,51 @@
+<div id="orderForm" class="hidden">
+    <h2 id="roomTitle"></h2>
+
+    <div id="orderNotice" class="notice"></div>
+    <div id="menuWarning" class="menu-warning"></div>
+
+    <!-- MAIN -->
+    <div class="section">
+        <h3>Mains</h3>
+
+        <!-- Row 1 -->
+        <div class="button-row">
+            <button id="m1Btn" class="select-btn main-btn"></button>
+            <button id="m2Btn" class="select-btn main-btn"></button>
+        </div>
+
+        <!-- Carb Line (comes immediately after row 1) -->
+        <div id="carbLine" class="carb-line"></div>
+
+        <!-- Row 2 -->
+        <div class="button-row">
+            <button class="select-btn main-btn" data-value="Salad Plate">
+                🥗 Salad Plate
+            </button>
+        </div>
+
+        <!-- Special Request -->
+        <input type="text" id="mainSpecial" placeholder="Special request">
+    </div>
+
+    <!-- VEGETABLES -->
+    <div class="section">
+        <h3>Vegetables</h3>
+        <div class="button-row">
+            <button id="v1Btn" class="select-btn veg-btn"></button>
+            <button id="v2Btn" class="select-btn veg-btn"></button>
+        </div>
+    </div>
+
+    <!-- DESSERT -->
+    <div class="section">
+        <h3>Dessert</h3>
+        <div class="button-row">
+            <button id="d1Btn" class="select-btn dessert-btn"></button>
+            <button id="d2Btn" class="select-btn dessert-btn"></button>
+            <button id="d3Btn" class="select-btn dessert-btn"></button>
+        </div>
+    </div>
+
+    <button type="button" class="save-btn">Save Order</button>
+</div>

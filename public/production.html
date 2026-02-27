@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Production Menu Setup</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/utilities.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Production – Daily Menu</h1>
+
+    <div class="section">
+        <label>Select Date:</label>
+        <input type="date" id="menuDate">
+    </div>
+
+    <div class="section">
+        <h3>Mains</h3>
+        <input type="text" id="m1Input" placeholder="Main 1 (m1)">
+        <input type="text" id="m2Input" placeholder="Main 2 (m2)">
+    </div>
+
+    <div class="section">
+        <h3>Carb</h3>
+        <input type="text" id="c1Input" placeholder="Carb (c1)">
+    </div>
+
+    <div class="section">
+        <h3>Vegetables</h3>
+        <input type="text" id="v1Input" placeholder="Veg 1 (v1)">
+        <input type="text" id="v2Input" placeholder="Veg 2 (v2)">
+    </div>
+
+    <div class="section">
+        <h3>Desserts</h3>
+        <input type="text" id="d1Input" placeholder="Dessert 1 (d1)">
+        <input type="text" id="d2Input" placeholder="Dessert 2 (d2)">
+        <input type="text" id="d3Input" placeholder="Dessert 3 (optional)">
+    </div>
+
+    <button id="saveMenuBtn" class="save-btn">Save Menu</button>
+
+    <div id="statusMessage" class="notice"></div>
+</div>
+
+<script type="module" src="js/production.js"></script>
+
+</body>
+</html>

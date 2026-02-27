@@ -1,0 +1,14 @@
+.carb-line {
+    text-align: center;
+    font-size: 17px;
+    font-weight: 500;
+    margin: 8px 0;
+    color: #444;
+}
+
+.menu-warning {
+    text-align: center;
+    color: red;
+    font-weight: bold;
+    margin: 10px 0;
+}

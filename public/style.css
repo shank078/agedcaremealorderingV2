@@ -1,0 +1,315 @@
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100dvh;
+    overflow: hidden;
+    background: #eef4f9;
+}
+.container {
+    max-width: 650px;
+    margin: auto;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px;
+    box-sizing: border-box;
+}
+h1 {
+    text-align: center;
+    color: #2a4d69;
+    margin-bottom: 20px;
+}
+
+.top-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input, select {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #cbd6e2;
+    flex: 1;
+}
+
+.room-select {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.room-select input {
+    flex: 1;
+}
+
+.room-select button {
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: none;
+    background: #4a90e2;
+    color: white;
+    font-size: 16px;
+}
+
+.section {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.section h3 {
+    margin-top: 0;
+    color: #2a4d69;
+}
+
+.button-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.select-btn {
+    flex: 1;
+    padding: 18px;
+    font-size: 17px;
+    border-radius: 12px;
+    border: 2px solid #d9e2ec;
+    background: #f7fafc;
+    transition: all 0.2s ease;
+}
+
+/* Main Active */
+.main-btn.active {
+    background: #4a90e2;
+    color: white;
+    border-color: #4a90e2;
+}
+
+/* Veg Active */
+.veg-btn.active {
+    background: #6abf69;
+    color: white;
+    border-color: #6abf69;
+}
+
+/* Dessert Active */
+.dessert-btn.active {
+    background: #b388eb;
+    color: white;
+    border-color: #b388eb;
+}
+
+.select-btn:active {
+    transform: scale(0.98);
+}
+
+input[type="text"] {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid #d9e2ec;
+}
+
+.save-btn {
+    width: 100%;
+    padding: 18px;
+    font-size: 18px;
+    background: #2a4d69;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    margin-top: 10px;
+}
+
+.hidden {
+    display: none;
+}
+body {
+    overscroll-behavior: none;
+}
+/* ===== Kitchen Refinement ===== */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.summary-card {
+    background: white;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+.summary-card h3 {
+    margin-top: 0;
+    font-size: 22px;
+    color: #2a4d69;
+    margin-bottom: 15px;
+}
+
+.summary-card p {
+    font-size: 20px;
+    display: flex;
+    justify-content: space-between;
+    margin: 12px 0;
+}
+
+.summary-card span {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* Section accent colors */
+.summary-card:nth-child(1) {
+    border-left: 6px solid #4a90e2;
+}
+
+.summary-card:nth-child(2) {
+    border-left: 6px solid #6abf69;
+}
+
+.summary-card:nth-child(3) {
+    border-left: 6px solid #b388eb;
+}
+
+/* Bigger Load button */
+#loadBtn {
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    background: #2a4d69;
+    color: white;
+}
+
+/* ===== Button Tap Feedback ===== */
+
+#loadBtn {
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+#loadBtn:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+/* ===== Universal Press Effect (keeps original styling) ===== */
+
+button {
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+button:active {
+    transform: scale(0.96);
+}
+/* ===== Modal Styling ===== */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+#modalList {
+    margin-top: 15px;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+
+/* ===== Room Grid Layout ===== */
+
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.room-grid div {
+    background: #f2f6fa;
+    padding: 8px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Mobile adjustment */
+@media (max-width: 600px) {
+    .room-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+/* Clickable Count Styling */
+
+.count-link {
+    display: inline-block;
+    min-width: 42px;              /* Makes single digit easy to tap */
+    padding: 6px 10px;            /* Bigger tap area */
+    margin-left: 6px;
+    font-weight: 700;
+    color: #1e88e5;               /* Professional blue */
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.count-link:active {
+    background: rgba(30, 136, 229, 0.15);
+}
+/* ===== Modal Close Button ===== */
+
+#closeModal {
+    margin-top: 20px;
+    padding: 14px 28px;        /* Bigger tap area */
+    font-size: 16px;           /* Larger text */
+    min-height: 44px;          /* Mobile touch standard */
+    min-width: 120px;
+
+    border-radius: 10px;
+    border: none;
+    background-color: #2563eb; /* Clean blue */
+    color: white;
+    cursor: pointer;
+
+    transition: all 0.15s ease;
+}
+
+/* Hover (desktop) */
+#closeModal:hover {
+    background-color: #1e4fd8;
+}
+
+/* Tap feedback (tablet) */
+#closeModal:active {
+    transform: scale(0.97);
+}

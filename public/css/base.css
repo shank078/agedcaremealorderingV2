@@ -1,0 +1,70 @@
+/* ============================= */
+/* BASE / GLOBAL STYLES         */
+/* ============================= */
+/* === GLOBAL APP LOCK === */
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  touch-action: pan-y; /* only vertical scroll */
+}
+
+/* Prevent padding from breaking width */
+* {
+  box-sizing: border-box;
+}
+:root {
+    --primary: #2d7ff9;
+    --primary-dark: #1f6ae0;
+    --success: #4caf50;
+    --success-dark: #3e8e41;
+    --bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --border: #e0e0e0;
+    --text-dark: #333;
+    --text-light: #666;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+    background: linear-gradient(
+        180deg,
+        #eef2f7 0%,
+        var(--bg) 100%
+    );
+    min-height: 100vh;
+    margin: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+}
+
+h1 {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}

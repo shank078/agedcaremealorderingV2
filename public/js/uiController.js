@@ -232,7 +232,7 @@ function setDessert(btn, value) {
 // Header Selection Controller
 // ===============================
 
-function initHeaderController() {
+export function initHeaderController() {
 
     const mealDateInput = document.getElementById("mealDate");
     const todayBtn = document.getElementById("todayBtn");
@@ -248,28 +248,44 @@ function initHeaderController() {
         checkReady();
     });
 
-    todayBtn?.addEventListener("click", function () {
-        const today = new Date().toISOString().split("T")[0];
-        mealDateInput.value = today;
-        selectedDate = today;
+todayBtn?.addEventListener("click", function () {
+
+    document.querySelectorAll(".quick-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+    this.classList.add("active");
+
+    const today = new Date().toISOString().split("T")[0];
+    mealDateInput.value = today;
+    selectedDate = today;
+    checkReady();
+});
+   tomorrowBtn?.addEventListener("click", function () {
+
+    document.querySelectorAll(".quick-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+    this.classList.add("active");
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const formatted = tomorrow.toISOString().split("T")[0];
+
+    mealDateInput.value = formatted;
+    selectedDate = formatted;
+    checkReady();
+});
+
+  mealButtons.forEach(btn => {
+    btn.addEventListener("click", function () {
+
+        mealButtons.forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+
+        selectedMeal = this.dataset.meal;
         checkReady();
     });
-
-    tomorrowBtn?.addEventListener("click", function () {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const formatted = tomorrow.toISOString().split("T")[0];
-        mealDateInput.value = formatted;
-        selectedDate = formatted;
-        checkReady();
-    });
-
-    mealButtons.forEach(btn => {
-        btn.addEventListener("click", function () {
-            selectedMeal = this.dataset.meal;
-            checkReady();
-        });
-    });
+});
 
     function checkReady() {
         if (selectedDate && selectedMeal) {
@@ -301,6 +317,6 @@ function initHeaderController() {
     });
 }
 
-setTimeout(initHeaderController, 300);
+
 
 export default UIController;

@@ -1,5 +1,6 @@
-import { db } from "./firebase.js";
-import { doc, setDoc } from "firebase/firestore";
+// production.js (standalone page)
+
+const db = firebase.firestore();
 
 const saveBtn = document.getElementById("saveMenuBtn");
 const statusMessage = document.getElementById("statusMessage");
@@ -7,6 +8,7 @@ const statusMessage = document.getElementById("statusMessage");
 saveBtn.addEventListener("click", async () => {
 
     const date = document.getElementById("menuDate").value;
+    const mealType = document.getElementById("mealTypeSelect").value;
 
     const m1 = document.getElementById("m1Input").value.trim();
     const m2 = document.getElementById("m2Input").value.trim();
@@ -17,25 +19,30 @@ saveBtn.addEventListener("click", async () => {
     const d2 = document.getElementById("d2Input").value.trim();
     const d3 = document.getElementById("d3Input").value.trim();
 
-    if (!date || !m1 || !m2 || !c1) {
-        statusMessage.textContent = "⚠ Date, m1, m2 and c1 are required.";
+    if (!date || !mealType || !m1 || !m2 || !c1) {
+        statusMessage.textContent = "⚠ Date, meal, m1, m2 and c1 are required.";
         statusMessage.style.color = "red";
         return;
     }
 
     try {
-        await setDoc(doc(db, "menus", date), {
-            m1,
-            m2,
-            c1,
-            v1,
-            v2,
-            d1,
-            d2,
-            d3
-        });
 
-        statusMessage.textContent = "✅ Menu saved successfully.";
+        await db.collection("menus")
+            .doc(date)
+            .collection("meals")
+            .doc(mealType)
+            .set({
+                m1,
+                m2,
+                c1,
+                v1,
+                v2,
+                d1,
+                d2,
+                d3
+            });
+
+        statusMessage.textContent = `✅ ${mealType} menu saved successfully.`;
         statusMessage.style.color = "green";
 
     } catch (error) {

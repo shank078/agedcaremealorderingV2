@@ -1,8 +1,15 @@
 // componentLoader.js
 
-document.addEventListener("DOMContentLoaded", function () {
+// 🔥 IMPORTANT: Firebase must initialize FIRST
+import "./firebase.js";
 
-    // Load all components first
+// Then import other modules
+import { initHeaderController } from "./uiController.js";
+import "./orderService.js";
+import "./app.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+
     Promise.all([
         loadComponent("components/header.html", "header"),
         loadComponent("components/roomSelector.html", "roomSelector"),
@@ -12,11 +19,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         console.log("✅ Components loaded");
 
-        // Make sure initializeApp exists before calling
-        if (typeof initializeApp === "function") {
-            initializeApp();
+        // Initialize header AFTER header is inserted
+        initHeaderController();
+
+        // Initialize main app logic (if defined globally)
+        if (typeof window.initializeApp === "function") {
+            window.initializeApp();
         } else {
-            console.error("❌ initializeApp() not found. Check app.js loading.");
+            console.warn("⚠ initializeApp() not found.");
         }
 
     })
@@ -36,7 +46,7 @@ function loadComponent(file, elementId) {
             }
             return response.text();
         })
-        .then(data => {
+        .then(html => {
 
             const container = document.getElementById(elementId);
 
@@ -44,7 +54,6 @@ function loadComponent(file, elementId) {
                 throw new Error("Container not found: " + elementId);
             }
 
-            container.innerHTML = data;
+            container.innerHTML = html;
         });
-
 }

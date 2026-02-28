@@ -157,9 +157,8 @@ const UIController = {
 // 🔥 MENU LOADER
 // ===============================
 
-async function loadMenuForDate(date) {
-
-    const menu = await getMenuByDate(date);
+async function loadMenuForDate(date, mealType) {
+    const menu = await getMenuByDate(date, mealType);
 
     const warning = document.getElementById("menuWarning");
     const m1Btn = document.getElementById("m1Btn");
@@ -305,7 +304,7 @@ todayBtn?.addEventListener("click", function () {
         title.style.display = "block";
 
         // 🔥 Load menu when ready
-        loadMenuForDate(selectedDate);
+   loadMenuForDate(selectedDate, selectedMeal);
     }
 
     title.addEventListener("click", function () {

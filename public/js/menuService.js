@@ -1,18 +1,29 @@
 // menuService.js
 
-// We use global firebase (CDN compat version)
 const db = firebase.firestore();
 
-export async function getMenuByDate(date) {
+// 🔥 GET MENU FOR DATE + MEAL TYPE
+export async function getMenuByDate(date, mealType) {
 
-  const snap = await db.collection("menus").doc(date).get();
+  const snap = await db
+    .collection("menus")
+    .doc(date)
+    .collection("meals")
+    .doc(mealType)
+    .get();
 
   if (!snap.exists) return null;
 
   return snap.data();
 }
 
-export async function saveMenu(date, menuData) {
+// 🔥 SAVE MENU FOR DATE + MEAL TYPE
+export async function saveMenu(date, mealType, menuData) {
 
-  await db.collection("menus").doc(date).set(menuData);
+  await db
+    .collection("menus")
+    .doc(date)
+    .collection("meals")
+    .doc(mealType)
+    .set(menuData);
 }

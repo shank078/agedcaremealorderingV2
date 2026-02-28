@@ -64,16 +64,27 @@
 
 <script>
   const firebaseConfig = {
-    apiKey: "AIzaSyCTah0S3GhpsbK7hA8fQxKpmxmDjKSlTII",
-    authDomain: "aged-care-meals.firebaseapp.com",
-    projectId: "aged-care-meals",
-    storageBucket: "aged-care-meals.firebasestorage.app",
-    messagingSenderId: "548925762234",
-    appId: "1:548925762234:web:20b446f31d62566cc7f083"
+    apiKey: "AIzaSyCP4xpczuzC39RzbQDfQm8U8RpkFpEm-Ok",
+    authDomain: "agedcaremealorderingv2.firebaseapp.com",
+    projectId: "agedcaremealorderingv2",
+    storageBucket: "agedcaremealorderingv2.firebasestorage.app",
+    messagingSenderId: "845390728197",
+    appId: "1:845390728197:web:2d6fc85aba13fdce4e206c"
   };
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+
+  if (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+  ) {
+    console.log("🔥 Kitchen connected to Firestore Emulator");
+    db.settings({
+      host: "127.0.0.1:8080",
+      ssl: false
+    });
+  }
 
   let roomLists = {};
 
@@ -115,7 +126,6 @@
           .get();
 
       snapshot.forEach(doc => {
-
           const data = doc.data();
           const roomId = doc.id;
 
@@ -158,80 +168,15 @@
               dessert3++;
               roomLists.dessert3.push(roomId);
           }
-
       });
 
       document.getElementById("fishCount").innerText = fish;
       document.getElementById("chickenCount").innerText = chicken;
       document.getElementById("saladCount").innerText = salad;
-
       document.getElementById("beansCount").innerText = beans;
       document.getElementById("carrotCount").innerText = carrots;
-
       document.getElementById("dessert1Count").innerText = dessert1;
       document.getElementById("dessert2Count").innerText = dessert2;
       document.getElementById("dessert3Count").innerText = dessert3;
-
-  });
-
-  // CLICK HANDLER FOR SHOWING ROOMS
-  document.addEventListener("click", function(e) {
-
-      if (!e.target.dataset.item) return;
-
-      const item = e.target.dataset.item;
-      const rooms = roomLists[item] || [];
-
-      document.getElementById("modalTitle").innerText =
-          e.target.parentElement.innerText;
-
-     document.getElementById("modalList").innerHTML =
-    rooms.length === 0
-        ? "No rooms"
-        : rooms
-            .sort((a,b)=>a-b)
-            .map(r => "<div>" + r + "</div>")
-            .join("");
-      document.getElementById("roomModal").classList.remove("hidden");
-  });
-
-  document.getElementById("closeModal").addEventListener("click", function() {
-      document.getElementById("roomModal").classList.add("hidden");
-  });
-
-</script>
-
-<!-- Modal -->
-<div id="roomModal" class="modal hidden">
-    <div class="modal-content" id="modalContent">
-        <h2 id="modalTitle"></h2>
-     <div id="modalList" class="room-grid"></div>
-        <button type="button" id="closeModal">Close</button>
-    </div>
-</div>
-
-<script>
-  const modal = document.getElementById("roomModal");
-  const modalContent = document.getElementById("modalContent");
-
-  // Close button
-  document.getElementById("closeModal").addEventListener("click", function() {
-      modal.classList.add("hidden");
-  });
-
-  // Click outside modal content closes it
-  modal.addEventListener("click", function(e) {
-      if (e.target === modal) {
-          modal.classList.add("hidden");
-      }
-  });
-
-  // Prevent clicks inside modal from closing it
-  modalContent.addEventListener("click", function(e) {
-      e.stopPropagation();
   });
 </script>
-</div>
-
-</body>
-</html>

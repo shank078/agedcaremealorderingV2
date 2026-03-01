@@ -1,0 +1,102 @@
+/* =========================
+   Base Button
+========================= */
+
+.btn {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn:hover {
+  background: var(--color-background);
+  box-shadow: var(--shadow-sm);
+}
+
+/* =========================
+   Selected / Active Option
+========================= */
+
+.btn--active {
+  background: var(--color-primary-soft);
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary-strong);
+}
+
+/* Remove scale (more professional) */
+.btn--selected {
+  /* intentionally empty for now */
+}
+
+/* =========================
+   Option Sizing Variants
+========================= */
+
+.btn--option {
+  min-width: 160px;
+  padding: 18px;
+  font-size: var(--font-size-base);
+}
+
+.btn--meal {
+  padding: 18px 36px;
+  min-width: 200px;
+  font-size: var(--font-size-lg);
+}
+
+/* =========================
+   Save Button (Primary Action)
+========================= */
+
+.save-button {
+  margin-top: var(--spacing-xl);
+  width: 100%;
+  padding: 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.save-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* When order is valid and ready */
+.save-button--success {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 6px 16px rgba(63, 174, 120, 0.25);
+}
+
+/* Disabled state */
+.save-button:disabled {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* =========================
+   Save Confirmation Message
+========================= */
+
+.save-message {
+  margin-top: var(--spacing-sm);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-success);
+}

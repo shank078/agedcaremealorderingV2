@@ -1,0 +1,175 @@
+/* =========================
+   Page Layout
+========================= */
+
+.page {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  background: var(--color-background);
+}
+
+.order-card {
+  width: 100%;
+  max-width: 680px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  box-shadow: var(--shadow-md);
+}
+
+/* =========================
+   Titles
+========================= */
+
+.page-title {
+  text-align: center;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-xl);
+}
+
+.order-summary-title {
+  text-align: center;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-xl);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.order-summary-title:hover {
+  opacity: 0.75;
+}
+
+/* =========================
+   Date Selector
+========================= */
+
+.date-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.date-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.custom-date-slot {
+  min-width: 140px;
+}
+
+.date-input {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  background: var(--color-surface);
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+/* =========================
+   Meal Selector
+========================= */
+
+.meal-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* =========================
+   Menu Sections
+========================= */
+
+.menu-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.menu-section h3 {
+  margin-bottom: var(--spacing-md);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* =========================
+   Room Input
+========================= */
+
+.room-input {
+  width: 100%;
+  padding: 16px 18px;
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  transition: all 0.2s ease;
+  margin-bottom: var(--spacing-xl);
+}
+
+.room-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+/* =========================
+   Room Status Messages
+========================= */
+
+.room-error {
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+}
+
+.room-success {
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-success);
+  font-weight: var(--font-weight-medium);
+}
+
+/* =========================
+   Save Container
+========================= */
+
+.save-container {
+  margin-top: var(--spacing-xl);
+}
+
+.special-request {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  resize: none;
+  min-height: 70px;
+  background: var(--color-surface);
+  margin-top: var(--spacing-sm);
+}
+
+.special-request:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}

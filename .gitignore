@@ -4,3 +4,4 @@ firebase-debug.log
 firestore-debug.log
 .env
 .DS_Store
+emulator-data/

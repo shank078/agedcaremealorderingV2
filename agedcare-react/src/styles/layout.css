@@ -1,0 +1,153 @@
+/* Page Layout */
+
+.page {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.order-card {
+  width: 100%;
+  max-width: 720px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-soft);
+}
+
+.page-title {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: var(--spacing-xl);
+}
+
+
+/* =========================
+   Date Selector Layout
+========================= */
+
+.date-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.date-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.custom-date-slot {
+  display: flex;
+  align-items: center;
+}
+
+.date-input {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  font-size: 0.95rem;
+}
+
+/* =========================
+   Meal Selector Layout
+========================= */
+
+.meal-selector {
+  display: flex;
+  justify-content: center;   /* CENTER horizontally */
+  align-items: center;
+  gap: 48px;
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Menu Sections */
+
+.menu-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.menu-section h3 {
+  margin-bottom: var(--spacing-md);
+  font-weight: 600;
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-md);
+}
+.date-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.date-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.custom-date-slot {
+  min-width: 120px; /* space reserved for future date picker */
+}
+/* =========================
+   Ordering Mode Header
+========================= */
+
+.order-summary-title {
+  text-align: center;
+  font-size: 1.6rem;
+  margin-bottom: var(--spacing-xl);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.order-summary-title:hover {
+  opacity: 0.7;
+}
+/* =========================
+   Room Input Styling
+========================= */
+
+.room-input {
+  width: 100%;
+  padding: 16px 18px;
+  font-size: 1.05rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  transition: all 0.2s ease;
+  margin-bottom: var(--spacing-xl);
+}
+
+.room-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+
+/* =========================
+   Save Container
+========================= */
+
+.save-container {
+  margin-top: var(--spacing-xl);
+}
+
+.room-error {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #c0392b;
+}
+
+.room-success {
+  margin-top: 8px;
+  font-size: 1rem;
+  color: var(--color-primary);
+  font-weight: 500;
+}

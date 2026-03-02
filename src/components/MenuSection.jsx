@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 
 export default function MenuSection({
   selectedDate,
@@ -22,12 +22,40 @@ export default function MenuSection({
     );
   };
 
-  const handleSingleSelect = (category, key) => {
-    setSelected((prev) => ({
+ const handleSingleSelect = (category, key) => {
+  setSelected((prev) => {
+if (category === "main") {
+   if (prev.main === key) {
+    return {
+      ...prev,
+      main: "",      // clear main
+      veg: [],       // clear vegetables when no main
+    };
+  }
+
+  return {
+    ...prev,
+
+    // Select main
+    main: key,
+
+    // Turn off salad
+    salad: false,
+
+    // Restore vegetables if they were cleared
+    veg:
+      prev.veg.length === 0
+        ? vegetables.map(([vegKey]) => vegKey)
+        : prev.veg,
+  };
+}
+
+    return {
       ...prev,
       [category]: key,
-    }));
-  };
+    };
+  });
+};
 
   const handleMultiSelect = (category, key, maxLimit = null) => {
     setSelected((prev) => {
@@ -86,6 +114,14 @@ export default function MenuSection({
   const mains = useMemo(() => getCategoryItems("m"), [currentMenu]);
   const carbs = useMemo(() => getCategoryItems("c"), [currentMenu]);
   const vegetables = useMemo(() => getCategoryItems("v"), [currentMenu]);
+  useEffect(() => {
+  if (vegetables.length > 0 && selected.veg.length === 0) {
+    setSelected((prev) => ({
+      ...prev,
+      veg: vegetables.map(([key]) => key),
+    }));
+  }
+}, [vegetables]);
   const desserts = useMemo(() => getCategoryItems("d"), [currentMenu]);
 
   /* =========================
@@ -120,43 +156,57 @@ export default function MenuSection({
 
         {/* Carb display (non-selectable) */}
         {carbs.length > 0 &&
-          carbs.map(([key, value]) => (
-            <div key={key} className="carb-line">
-              <strong>With:</strong> {value}
-            </div>
-          ))}
+  carbs.map(([key, value]) => (
+    <div key={key} className="with-side">
+  <span className="with-label">With:</span>
+  <span className="with-value">{value}</span>
+</div>
+  ))}
       </div>
       {/* Salad Plate (static UI option) */}
-<div style={{ marginTop: "16px" }}>
-  <button
-    className={`btn btn--option ${
-      selected.salad ? "btn--active" : ""
-    }`}
-    onClick={() =>
-      setSelected((prev) => ({
-        ...prev,
-        salad: !prev.salad,
-      }))
-    }
-  >
-    🥗 Salad Plate
-  </button>
-</div>
+{/* Salad + Special Request Row */}
+<div className="menu-section menu-section--compact">
+  <div className="salad-special-row">
 
-{/* Special Request */}
-<div style={{ marginTop: "16px" }}>
-  <textarea
-    className="special-request"
-    placeholder="Special request"
-    value={selected.specialRequest}
-    onChange={(e) =>
-      setSelected((prev) => ({
-        ...prev,
-        specialRequest: e.target.value,
-      }))
-    }
-    maxLength={120}
-  />
+    {/* Salad Button */}
+    <button
+      className={`btn btn--option ${
+        selected.salad ? "btn--active" : ""
+      }`}
+      onClick={() =>
+        setSelected((prev) => ({
+          ...prev,
+          salad: !prev.salad,
+          main: !prev.salad ? "" : prev.main,
+          veg: !prev.salad ? [] : prev.veg,
+        }))
+      }
+    >
+      🥗 Salad Plate
+    </button>
+
+    {/* Special Request Input */}
+    <input
+      type="text"
+      className="special-request-input"
+      placeholder="Special request"
+      value={selected.specialRequest}
+      onChange={(e) => {
+        const value = e.target.value;
+
+        setSelected((prev) => ({
+          ...prev,
+          specialRequest: value,
+          veg:
+            value.trim() !== "" && !prev.main
+              ? []
+              : prev.veg,
+        }));
+      }}
+      maxLength={120}
+    />
+
+  </div>
 </div>
 
       {/* ================= Vegetables ================= */}

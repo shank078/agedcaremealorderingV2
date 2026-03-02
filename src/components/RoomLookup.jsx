@@ -4,6 +4,7 @@ export default function RoomLookup({
   roomNumber,
   setRoomNumber,
   resident,
+  roomError
 }) {
   if (!selectedDate || !mealType) return null;
 
@@ -19,6 +20,9 @@ export default function RoomLookup({
         onChange={(e) => setRoomNumber(e.target.value)}
         className="room-input"
       />
+      {roomError && (
+  <p className="room-error">{roomError}</p>
+)}
 
       {/* =========================
           Error Message

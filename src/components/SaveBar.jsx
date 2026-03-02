@@ -24,8 +24,24 @@ export default function SaveBar({
   // Hide until date + meal selected
   if (!selectedDate || !mealType) return null;
 
-  const isDisabled =
-    !resident || !currentMenu || !selected?.main || status === "saving";
+  // ✅ Check if anything at all is selected
+const hasAnySelection =
+  selected?.main ||
+  selected?.salad ||
+  selected?.veg?.length > 0 ||
+  selected?.dessert?.length > 0 ||
+  selected?.specialRequest?.trim() !== "";
+
+// ✅ Disable only if:
+// - no resident
+// - no menu loaded
+// - nothing selected
+// - currently saving
+const isDisabled =
+
+  !currentMenu ||
+  !hasAnySelection ||
+  status === "saving";
 
   async function handleClick() {
     if (isDisabled) return;
@@ -34,9 +50,17 @@ export default function SaveBar({
     setStatus("saving");
 
     try {
-      await handleSave();
+     const success = await handleSave();
 
-      setStatus("success");
+if (success) {
+  setStatus("success");
+
+  setTimeout(() => {
+    setStatus("idle");
+  }, 2000);
+} else {
+  setStatus("idle");
+}
 
       // Reset back to idle after 2 seconds
       setTimeout(() => {

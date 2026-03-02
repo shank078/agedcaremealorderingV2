@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getMenuByDate } from "../services/menuService";
 import { getActiveResidents } from "../services/residentService";
-import { saveResidentOrder } from "../services/orderService";
+import { saveResidentOrder, getResidentOrder } from "../services/orderService";
 
 import DateSelector from "../components/DateSelector";
 import MealSelector from "../components/MealSelector";
@@ -22,6 +22,7 @@ function formatDate(date) {
 ========================= */
 
 export default function OrderPage() {
+
   /* =========================
      Date Setup
   ========================= */
@@ -42,21 +43,29 @@ export default function OrderPage() {
   const [roomNumber, setRoomNumber] = useState("");
   const [resident, setResident] = useState(null);
   const [residents, setResidents] = useState([]);
+
+  // 🔴 Room validation error
+  const [roomError, setRoomError] = useState("");
+
+  // 🔵 Existing order message
+  const [existingOrderMessage, setExistingOrderMessage] = useState("");
+
   const [menu, setMenu] = useState(null);
   const [menuLoading, setMenuLoading] = useState(false);
 
   const [selected, setSelected] = useState({
-  main: "",
-  veg: [],
-  dessert: [],
-  salad: false,
-  specialRequest: "",
-});
+    main: "",
+    veg: [],
+    dessert: [],
+    salad: false,
+    specialRequest: "",
+  });
+
   /* =========================
      Effects
   ========================= */
 
-  // Load residents once
+  // Load residents
   useEffect(() => {
     async function loadResidents() {
       const data = await getActiveResidents();
@@ -65,7 +74,7 @@ export default function OrderPage() {
     loadResidents();
   }, []);
 
-  // Load menu when date + meal selected
+  // Load menu
   useEffect(() => {
     if (!selectedDate || !mealType) return;
 
@@ -84,7 +93,13 @@ export default function OrderPage() {
     const found = residents.find(
       (r) => r.roomNumber === roomNumber
     );
+
     setResident(found || null);
+
+    if (found) {
+      setRoomError("");
+    }
+
   }, [roomNumber, residents]);
 
   /* =========================
@@ -94,45 +109,109 @@ export default function OrderPage() {
   const currentMenu =
     mealType === "Lunch" ? menu?.lunch : menu?.dinner;
 
-/* =========================
-   UI State
-========================= */
+  /* =========================
+     Existing Order Detection
+  ========================= */
 
-const isOrdering = selectedDate && mealType;
+  useEffect(() => {
+
+    async function checkExistingOrder() {
+
+      if (!resident || !selectedDate || !mealType || !currentMenu) {
+        setExistingOrderMessage("");
+        return;
+      }
+
+      const existing = await getResidentOrder(selectedDate, resident.id);
+
+      if (existing && existing[mealType.toLowerCase()]) {
+
+        const orderData = existing[mealType.toLowerCase()];
+
+        // Map main
+        const mainKey = Object.keys(currentMenu).find(
+          (key) => currentMenu[key] === orderData.main
+        );
+
+        // Map veg
+        const vegKeys = Object.keys(currentMenu).filter(
+          (key) => orderData.veg?.includes(currentMenu[key])
+        );
+
+        // Map dessert
+        const dessertKeys = Object.keys(currentMenu).filter(
+          (key) => orderData.dessert?.includes(currentMenu[key])
+        );
+
+        setSelected({
+          main: mainKey || "",
+          veg: vegKeys || [],
+          dessert: dessertKeys || [],
+          salad: orderData.salad || false,
+          specialRequest: orderData.specialRequest || "",
+        });
+
+        setExistingOrderMessage(
+          "Existing order found for this resident. You may edit and resave."
+        );
+
+      } else {
+        setExistingOrderMessage("");
+      }
+    }
+
+    checkExistingOrder();
+
+  }, [resident, selectedDate, mealType, currentMenu]);
+
+  /* =========================
+     UI State
+  ========================= */
+
+  const isOrdering = selectedDate && mealType;
+
   /* =========================
      Handlers
   ========================= */
-async function handleSave() {
-  if (!resident || !currentMenu) return;
 
-  // Find carb automatically (prefix "c")
-  const carbEntry = Object.entries(currentMenu)
-    .find(([key]) => key.startsWith("c"));
+  async function handleSave() {
 
- const convertSelections = {
-  main: selected.main
-    ? currentMenu[selected.main]
-    : null,
+    if (!resident) {
+      setRoomError("Please enter a valid room number.");
+      return false;
+    }
 
-  carb: carbEntry ? carbEntry[1] : null,
+    if (!currentMenu) return false;
 
-  veg: selected.veg.map(
-    (key) => currentMenu[key]
-  ),
+    const carbEntry = Object.entries(currentMenu)
+      .find(([key]) => key.startsWith("c"));
 
-  dessert: selected.dessert.map(
-    (key) => currentMenu[key]
-  ),
+    const convertSelections = {
+      main: selected.main
+        ? currentMenu[selected.main]
+        : null,
 
-  salad: selected.salad,   // ✅ NEW
-  specialRequest: selected.specialRequest.trim(), // ✅ NEW
-};
-  await saveResidentOrder(selectedDate, resident.id, {
-    roomNumber: resident.roomNumber,
-    [mealType.toLowerCase()]: convertSelections,
-  });
-}
-  
+      carb: carbEntry ? carbEntry[1] : null,
+
+      veg: selected.veg.map(
+        (key) => currentMenu[key]
+      ),
+
+      dessert: selected.dessert.map(
+        (key) => currentMenu[key]
+      ),
+
+      salad: selected.salad,
+      specialRequest: selected.specialRequest.trim(),
+    };
+
+    await saveResidentOrder(selectedDate, resident.id, {
+      roomNumber: resident.roomNumber,
+      [mealType.toLowerCase()]: convertSelections,
+    });
+
+    return true;
+  }
 
   /* =========================
      Render
@@ -142,54 +221,52 @@ async function handleSave() {
     <div className="page">
       <div className="order-card">
 
-        {/* Page Title */}
-       {/* =========================
-    Header / Mode Switch
-========================= */}
+        {!isOrdering ? (
+          <>
+            <h1 className="page-title">Meal Ordering</h1>
 
-{!isOrdering ? (
-  <>
-    <h1 className="page-title">Meal Ordering</h1>
+            <DateSelector
+              today={today}
+              tomorrow={tomorrow}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              setMealType={setMealType}
+            />
 
-    <DateSelector
-      today={today}
-      tomorrow={tomorrow}
-      selectedDate={selectedDate}
-      setSelectedDate={setSelectedDate}
-      setMealType={setMealType}
-    />
+            <MealSelector
+              selectedDate={selectedDate}
+              mealType={mealType}
+              setMealType={setMealType}
+            />
+          </>
+        ) : (
+          <h1
+            className="order-summary-title"
+            onClick={() => setMealType(null)}
+          >
+            {new Date(selectedDate).toLocaleDateString("en-AU", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })} ({mealType})
+          </h1>
+        )}
 
-    <MealSelector
-      selectedDate={selectedDate}
-      mealType={mealType}
-      setMealType={setMealType}
-    />
-  </>
-) : (
-  <h1
-    className="order-summary-title"
-    onClick={() => {
-      setMealType(null);
-    }}
-  >
-    {new Date(selectedDate).toLocaleDateString("en-AU", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    })} ({mealType})
-  </h1>
-)}
-
-        {/* Room Lookup */}
         <RoomLookup
           selectedDate={selectedDate}
           mealType={mealType}
           roomNumber={roomNumber}
           setRoomNumber={setRoomNumber}
           resident={resident}
+          roomError={roomError}
         />
 
-        {/* Menu Options */}
+        {existingOrderMessage && (
+          <div className="existing-order-message">
+            {existingOrderMessage}
+          </div>
+        )}
+
         <MenuSection
           selectedDate={selectedDate}
           mealType={mealType}
@@ -199,15 +276,14 @@ async function handleSave() {
           setSelected={setSelected}
         />
 
-        {/* Save Action */}
         <SaveBar
-  selectedDate={selectedDate}
-  mealType={mealType}
-  resident={resident}
-  currentMenu={currentMenu}
-  selected={selected}
-  handleSave={handleSave}
-/>
+          selectedDate={selectedDate}
+          mealType={mealType}
+          resident={resident}
+          currentMenu={currentMenu}
+          selected={selected}
+          handleSave={handleSave}
+        />
 
       </div>
     </div>

@@ -73,3 +73,34 @@ select {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+/* =========================
+   Mobile Scaling Adjustments
+========================= */
+
+/* =========================
+   Mobile Design System Scaling
+========================= */
+
+@media (max-width: 480px) {
+
+  :root {
+
+    /* Typography */
+    --font-size-base: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 22px;
+
+    /* Spacing scale */
+    --spacing-md: 12px;
+    --spacing-lg: 18px;
+    --spacing-xl: 24px;
+    --spacing-2xl: 32px;
+
+    /* Radius slightly reduced */
+    --radius-md: 14px;
+    --radius-lg: 18px;
+
+  }
+
+}

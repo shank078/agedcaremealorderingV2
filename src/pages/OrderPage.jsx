@@ -13,8 +13,13 @@ import SaveBar from "../components/SaveBar";
    Utility
 ========================= */
 
+// ✅ Local-safe date formatting (no UTC conversion)
 function formatDate(date) {
-  return date.toISOString().split("T")[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 /* =========================
@@ -244,7 +249,7 @@ export default function OrderPage() {
             className="order-summary-title"
             onClick={() => setMealType(null)}
           >
-            {new Date(selectedDate).toLocaleDateString("en-AU", {
+            {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-AU", {
               day: "numeric",
               month: "short",
               year: "numeric",

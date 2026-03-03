@@ -40,14 +40,14 @@
 ========================= */
 
 .btn--option {
-  min-width: 160px;
+  width: 100%;
   padding: 18px;
   font-size: var(--font-size-base);
 }
 
 .btn--meal {
-  padding: 18px 36px;
-  min-width: 200px;
+  width: 100%;
+  padding: 18px;
   font-size: var(--font-size-lg);
 }
 

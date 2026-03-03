@@ -13,15 +13,6 @@ export default function MenuSection({
   /* =========================
      Helpers
   ========================= */
-
-  const getCategoryItems = (prefix) => {
-    if (!currentMenu) return [];
-
-    return Object.entries(currentMenu).filter(([key]) =>
-      key.startsWith(prefix)
-    );
-  };
-
  const handleSingleSelect = (category, key) => {
   setSelected((prev) => {
 if (category === "main") {
@@ -44,9 +35,9 @@ if (category === "main") {
 
     // Restore vegetables if they were cleared
     veg:
-      prev.veg.length === 0
-        ? vegetables.map(([vegKey]) => vegKey)
-        : prev.veg,
+  prev.veg.length === 0
+    ? vegetables.map((vegItem) => vegItem.id)
+    : prev.veg,
   };
 }
 
@@ -81,48 +72,50 @@ if (category === "main") {
     });
   };
 
-  const renderOptions = (items, category, isMulti = false, maxLimit = null) => {
-    if (!items.length) return null;
-
-    return items.map(([key, value]) => {
-      const isSelected = isMulti
-        ? selected[category]?.includes(key)
-        : selected[category] === key;
-
-      return (
-        <button
-          key={key}
-          onClick={() =>
-            isMulti
-              ? handleMultiSelect(category, key, maxLimit)
-              : handleSingleSelect(category, key)
-          }
-          className={`btn btn--option ${
-            isSelected ? "btn--active" : ""
-          }`}
-        >
-          {value}
-        </button>
-      );
-    });
-  };
-
   /* =========================
-     Derived Menu Data
-  ========================= */
+   Render Options (Array-Based Structure)
+   Items are objects: { id, name }
+   Order preserved from Firestore
+========================= */
 
-  const mains = useMemo(() => getCategoryItems("m"), [currentMenu]);
-  const carbs = useMemo(() => getCategoryItems("c"), [currentMenu]);
-  const vegetables = useMemo(() => getCategoryItems("v"), [currentMenu]);
-  useEffect(() => {
-  if (vegetables.length > 0 && selected.veg.length === 0) {
-    setSelected((prev) => ({
-      ...prev,
-      veg: vegetables.map(([key]) => key),
-    }));
-  }
-}, [vegetables]);
-  const desserts = useMemo(() => getCategoryItems("d"), [currentMenu]);
+const renderOptions = (items, category, isMulti = false, maxLimit = null) => {
+  if (!items.length) return null;
+
+  return items.map((item) => {
+    const { id, name } = item;
+
+    const isSelected = isMulti
+      ? selected[category]?.includes(id)
+      : selected[category] === id;
+
+    return (
+      <button
+        key={id}
+        onClick={() =>
+          isMulti
+            ? handleMultiSelect(category, id, maxLimit)
+            : handleSingleSelect(category, id)
+        }
+        className={`btn btn--option ${
+          isSelected ? "btn--active" : ""
+        }`}
+      >
+        {name}
+      </button>
+    );
+  });
+};
+/* =========================
+   Derived Menu Data (Array-Based Structure)
+   Professional approach:
+   - Database defines order
+   - UI consumes arrays directly
+========================= */
+
+const mains = currentMenu?.mains || [];
+const vegetables = currentMenu?.vegetables || [];
+const desserts = currentMenu?.desserts || [];
+const carb = currentMenu?.carb || null;
 
   /* =========================
      UI States
@@ -155,13 +148,12 @@ if (category === "main") {
         </div>
 
         {/* Carb display (non-selectable) */}
-        {carbs.length > 0 &&
-  carbs.map(([key, value]) => (
-    <div key={key} className="with-side">
-  <span className="with-label">With:</span>
-  <span className="with-value">{value}</span>
-</div>
-  ))}
+  {carb && (
+  <div className="with-side">
+    <span className="with-label">With:</span>
+    <span className="with-value">{carb}</span>
+  </div>
+)}
       </div>
       {/* Salad Plate (static UI option) */}
 {/* Salad + Special Request Row */}

@@ -138,16 +138,22 @@
    - Perfect for iPhone, iPad, Desktop
 ========================= */
 
+/* =========================
+   Adaptive Option Grid
+   2 columns on mobile
+   3 when space allows
+========================= */
+
 .option-grid {
   display: grid;
   gap: var(--spacing-md);
 
   /*
-    Each button wants minimum 220px.
-    Grid auto-creates as many columns as fit.
-    Prevents awkward centering.
+    160px minimum allows:
+    - 2 columns on iPhone portrait
+    - 3 columns on larger screens
   */
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
 /* =========================

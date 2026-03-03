@@ -9,6 +9,17 @@ export default function MenuSection({
   setSelected,
 }) {
   if (!selectedDate || !mealType) return null;
+  /* =========================
+   Derived Menu Data (Array-Based Structure)
+   Professional approach:
+   - Database defines order
+   - UI consumes arrays directly
+========================= */
+
+const mains = currentMenu?.mains || [];
+const vegetables = currentMenu?.vegetables || [];
+const desserts = currentMenu?.desserts || [];
+const carb = currentMenu?.carb || null;
 
   /* =========================
      Helpers
@@ -105,17 +116,7 @@ const renderOptions = (items, category, isMulti = false, maxLimit = null) => {
     );
   });
 };
-/* =========================
-   Derived Menu Data (Array-Based Structure)
-   Professional approach:
-   - Database defines order
-   - UI consumes arrays directly
-========================= */
 
-const mains = currentMenu?.mains || [];
-const vegetables = currentMenu?.vegetables || [];
-const desserts = currentMenu?.desserts || [];
-const carb = currentMenu?.carb || null;
 
   /* =========================
      UI States

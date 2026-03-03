@@ -118,56 +118,70 @@ export default function OrderPage() {
      Existing Order Detection
   ========================= */
 
-  useEffect(() => {
+  // =====================================================
+// Order State Loader
+// Selected state is derived from:
+// resident.id + selectedDate + mealType
+// Prevents cross-resident state leakage
+// =====================================================
 
-    async function checkExistingOrder() {
+useEffect(() => {
 
-      if (!resident || !selectedDate || !mealType || !currentMenu) {
-        setExistingOrderMessage("");
-        return;
-      }
+  async function loadOrder() {
 
-      const existing = await getResidentOrder(selectedDate, resident.id);
+    const mealKey = mealType?.toLowerCase();
 
-      if (existing && existing[mealType.toLowerCase()]) {
-
-        const orderData = existing[mealType.toLowerCase()];
-
-        // Map main
-        const mainKey = Object.keys(currentMenu).find(
-          (key) => currentMenu[key] === orderData.main
-        );
-
-        // Map veg
-        const vegKeys = Object.keys(currentMenu).filter(
-          (key) => orderData.veg?.includes(currentMenu[key])
-        );
-
-        // Map dessert
-        const dessertKeys = Object.keys(currentMenu).filter(
-          (key) => orderData.dessert?.includes(currentMenu[key])
-        );
-
-        setSelected({
-          main: mainKey || "",
-          veg: vegKeys || [],
-          dessert: dessertKeys || [],
-          salad: orderData.salad || false,
-          specialRequest: orderData.specialRequest || "",
-        });
-
-        setExistingOrderMessage(
-          "Existing order found for this resident. You may edit and resave."
-        );
-
-      } else {
-        setExistingOrderMessage("");
-      }
+    // Identity guard
+    if (!resident?.id || !selectedDate || !mealKey || !currentMenu) {
+      setSelected({
+        main: "",
+        veg: [],
+        dessert: [],
+        salad: false,
+        specialRequest: "",
+      });
+      setExistingOrderMessage("");
+      return;
     }
 
-    checkExistingOrder();
+    const existing = await getResidentOrder(
+      selectedDate,
+      resident.id
+    );
 
-  }, [resident, selectedDate, mealType, currentMenu]);
+    const orderData = existing?.[mealKey];
+
+    if (!orderData) {
+      // No order exists → clean state
+      setSelected({
+        main: "",
+        veg: [],
+        dessert: [],
+        salad: false,
+        specialRequest: "",
+      });
+      setExistingOrderMessage("");
+      return;
+    }
+
+    // Map structured order
+    setSelected({
+      main: orderData.main?.id || "",
+      veg: orderData.veg?.map(v => v.id) || [],
+      dessert: orderData.dessert?.map(d => d.id) || [],
+      salad: orderData.salad || false,
+      specialRequest: orderData.specialRequest || "",
+    });
+
+    setExistingOrderMessage(
+      "Existing order found. You may edit and resave."
+    );
+
+  }
+
+  loadOrder();
+
+}, [resident?.id, selectedDate, mealType, currentMenu]);
 
   /* =========================
      UI State
@@ -188,27 +202,34 @@ export default function OrderPage() {
 
     if (!currentMenu) return false;
 
-    const carbEntry = Object.entries(currentMenu)
-      .find(([key]) => key.startsWith("c"));
+    // =====================================================
+// Convert Selected Keys to Structured Objects
+// Matches new menu format: arrays with { id, name }
+// =====================================================
 
-    const convertSelections = {
-      main: selected.main
-        ? currentMenu[selected.main]
-        : null,
+// Find selected main object
+const selectedMainObj = currentMenu?.mains?.find(
+  (item) => item.id === selected.main
+) || null;
 
-      carb: carbEntry ? carbEntry[1] : null,
+// Find selected vegetable objects
+const selectedVegObjs = currentMenu?.vegetables?.filter(
+  (item) => selected.veg.includes(item.id)
+) || [];
 
-      veg: selected.veg.map(
-        (key) => currentMenu[key]
-      ),
+// Find selected dessert objects
+const selectedDessertObjs = currentMenu?.desserts?.filter(
+  (item) => selected.dessert.includes(item.id)
+) || [];
 
-      dessert: selected.dessert.map(
-        (key) => currentMenu[key]
-      ),
-
-      salad: selected.salad,
-      specialRequest: selected.specialRequest.trim(),
-    };
+const convertSelections = {
+  main: selectedMainObj,
+  carb: currentMenu?.carb || null,
+  veg: selectedVegObjs,
+  dessert: selectedDessertObjs,
+  salad: selected.salad,
+  specialRequest: selected.specialRequest.trim(),
+};
 
     await saveResidentOrder(selectedDate, resident.id, {
       roomNumber: resident.roomNumber,

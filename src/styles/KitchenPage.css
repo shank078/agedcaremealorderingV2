@@ -1,0 +1,189 @@
+/* =========================
+   Kitchen Page Layout
+========================= */
+
+.kitchen-page {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  background: var(--color-background);
+}
+
+.kitchen-card {
+  width: 100%;
+  max-width: 900px; /* slightly wider than order page */
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+}
+
+/* =========================
+   Header
+========================= */
+
+.kitchen-title {
+  text-align: center;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* =========================
+   Top Controls
+========================= */
+
+.kitchen-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  justify-content: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.kitchen-date,
+.kitchen-select {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-base);
+  background: var(--color-surface);
+  min-width: 160px;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kitchen-date:focus,
+.kitchen-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+/* =========================
+   Summary Grid
+========================= */
+
+.kitchen-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.kitchen-section {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.kitchen-section h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-primary);
+}
+
+/* =========================
+   Summary Items
+========================= */
+
+.kitchen-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.kitchen-item:last-child {
+  border-bottom: none;
+}
+
+.kitchen-item-name {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+.kitchen-count {
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.kitchen-count:hover {
+  opacity: 0.7;
+}
+
+/* =========================
+   Modal
+========================= */
+
+.kitchen-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.kitchen-modal {
+  background: var(--color-surface);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  width: 90%;
+  max-width: 400px;
+}
+
+.kitchen-modal h2 {
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-xl);
+}
+
+.kitchen-room-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.kitchen-room {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-weight: var(--font-weight-medium);
+}
+
+/* =========================
+   Print Styling
+========================= */
+
+@media print {
+
+  body {
+    background: white;
+  }
+
+  .kitchen-controls {
+    display: none;
+  }
+
+  .kitchen-card {
+    box-shadow: none;
+    border: none;
+  }
+
+  .kitchen-count {
+    cursor: default;
+    color: black;
+  }
+
+}

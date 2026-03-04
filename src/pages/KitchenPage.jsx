@@ -5,12 +5,16 @@ import { db } from "../firebase/firebaseConfig";
 import DateSelector from "../components/DateSelector";
 import MealSelector from "../components/MealSelector";
 
+import KitchenDashboard from "../components/kitchen/KitchenDashboard";
+import KitchenSection from "../components/kitchen/KitchenSection";
+import SpecialRequestSection from "../components/kitchen/SpecialRequestSection";
+
 import "../styles/KitchenPage.css";
 
 /* =========================================================
    Utility
    ---------------------------------------------------------
-   Local-safe date formatting (same as OrderPage)
+   Local-safe date formatting (same pattern as OrderPage)
 ========================================================= */
 
 function formatDate(date) {
@@ -23,21 +27,17 @@ function formatDate(date) {
 /* =========================================================
    KitchenPage
    ---------------------------------------------------------
-   Operational dashboard for kitchen team.
-
-   UX Flow:
-   1. Select date (Today / Tomorrow / Custom)
-   2. Select meal (Lunch / Dinner)
-   3. Header collapses to summary title
-   4. Data auto-loads
-   5. Sections grouped + sorted descending
-   6. Click count → show room numbers
+   Responsibilities:
+   - Owns data loading
+   - Owns modal state
+   - Orchestrates layout
+   - No layout rendering logic
 ========================================================= */
 
 export default function KitchenPage() {
 
   /* =========================================================
-     Date Setup (Same Pattern as OrderPage)
+     Date Setup
   ========================================================= */
 
   const todayDate = new Date();
@@ -57,9 +57,10 @@ export default function KitchenPage() {
   const [summary, setSummary] = useState({
     mains: {},
     vegetables: {},
-    desserts: {},
     carbs: {},
     salad: {},
+    desserts: {},
+    specialRequests: [],
   });
 
   const [roomLists, setRoomLists] = useState({});
@@ -69,8 +70,7 @@ export default function KitchenPage() {
   /* =========================================================
      Data Loader
      ---------------------------------------------------------
-     Groups data by category.
-     Fully defensive against undefined structures.
+     Groups data deterministically.
   ========================================================= */
 
   async function loadKitchenData() {
@@ -87,17 +87,18 @@ export default function KitchenPage() {
       const groupedCounts = {
         mains: {},
         vegetables: {},
-        desserts: {},
         carbs: {},
         salad: {},
+        desserts: {},
+        specialRequests: [],
       };
 
       const groupedRooms = {
         mains: {},
         vegetables: {},
-        desserts: {},
         carbs: {},
         salad: {},
+        desserts: {},
       };
 
       function addItem(group, name, room) {
@@ -119,25 +120,29 @@ export default function KitchenPage() {
 
         const room = data.roomNumber;
 
-        // MAIN
         addItem("mains", meal.main?.name, room);
-
-        // CARB
         addItem("carbs", meal.carb, room);
 
-        // VEGETABLES
         meal.veg?.forEach((v) =>
           addItem("vegetables", v.name, room)
         );
 
-        // DESSERTS
         meal.dessert?.forEach((d) =>
           addItem("desserts", d.name, room)
         );
 
-        // SALAD
         if (meal.salad) {
           addItem("salad", "Salad", room);
+        }
+
+        if (
+          meal.specialRequest &&
+          meal.specialRequest.trim() !== ""
+        ) {
+          groupedCounts.specialRequests.push({
+            room,
+            request: meal.specialRequest.trim(),
+          });
         }
       });
 
@@ -153,9 +158,7 @@ export default function KitchenPage() {
   }
 
   /* =========================================================
-     Auto Load Trigger
-     ---------------------------------------------------------
-     Kitchen behaves reactively like OrderPage.
+     Auto Load
   ========================================================= */
 
   useEffect(() => {
@@ -164,12 +167,12 @@ export default function KitchenPage() {
   }, [selectedDate, mealType]);
 
   /* =========================================================
-     Modal Handler
+     Modal Logic
   ========================================================= */
 
   function openModal(group, item) {
     setModal({
-      group,
+      type: "normal",
       item,
       rooms:
         (roomLists[group]?.[item] || [])
@@ -178,57 +181,85 @@ export default function KitchenPage() {
   }
 
   /* =========================================================
-     Render Section
-     ---------------------------------------------------------
-     Sorted descending by count.
-  ========================================================= */
-
-  function renderSection(title, groupKey) {
-
-    const data = summary[groupKey] || {};
-
-    const sorted = Object.entries(data)
-      .sort((a, b) => b[1] - a[1]);
-
-    if (sorted.length === 0) return null;
-
-    return (
-      <div className="kitchen-section">
-        <h3>{title}</h3>
-
-        {sorted.map(([name, count]) => (
-          <div key={name} className="kitchen-item">
-            <span className="kitchen-item-name">
-              {name}
-            </span>
-
-            <span
-              className="kitchen-count"
-              onClick={() => openModal(groupKey, name)}
-            >
-              {count}
-            </span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  /* =========================================================
-     Derived UI State
+     Derived State
   ========================================================= */
 
   const isReady = selectedDate && mealType;
-  /* =========================================================
-   Derived Data State
-   ---------------------------------------------------------
-   Determines if any section has real data.
-   Prevents blank UI rendering.
-========================================================= */
 
-const hasData = Object.values(summary).some(
-  (group) => Object.keys(group).length > 0
-);
+  const hasData = Object.values(summary).some((group) => {
+    if (Array.isArray(group)) return group.length > 0;
+    return Object.keys(group).length > 0;
+  });
+
+  /* =========================================================
+     Section Delegators
+     ---------------------------------------------------------
+     KitchenPage passes data into presentation components.
+  ========================================================= */
+
+  const renderMains = () => (
+    <KitchenSection
+      title="Mains"
+      data={summary.mains}
+      onCountClick={(name) =>
+        openModal("mains", name)
+      }
+    />
+  );
+
+  const renderVegetables = () => (
+    <KitchenSection
+      title="Vegetables"
+      data={summary.vegetables}
+      onCountClick={(name) =>
+        openModal("vegetables", name)
+      }
+    />
+  );
+
+  const renderCarbs = () => (
+    <KitchenSection
+      title="Carbs"
+      data={summary.carbs}
+      onCountClick={(name) =>
+        openModal("carbs", name)
+      }
+    />
+  );
+
+  const renderSalad = () => (
+    <KitchenSection
+      title="Salad"
+      data={summary.salad}
+      onCountClick={(name) =>
+        openModal("salad", name)
+      }
+    />
+  );
+
+  const renderDesserts = () => (
+    <KitchenSection
+      title="Desserts"
+      data={summary.desserts}
+      onCountClick={(name) =>
+        openModal("desserts", name)
+      }
+    />
+  );
+
+  const renderSpecialRequests = () => (
+    <SpecialRequestSection
+      list={summary.specialRequests}
+      onOpen={(list) =>
+        setModal({
+          type: "special",
+          items: list.sort(
+            (a, b) => a.room - b.room
+          ),
+        })
+      }
+    />
+  );
 
   /* =========================================================
      Render
@@ -263,7 +294,9 @@ const hasData = Object.values(summary).some(
             className="order-summary-title"
             onClick={() => setMealType(null)}
           >
-            {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-AU", {
+            {new Date(
+              selectedDate + "T00:00:00"
+            ).toLocaleDateString("en-AU", {
               day: "numeric",
               month: "short",
               year: "numeric",
@@ -273,27 +306,22 @@ const hasData = Object.values(summary).some(
 
         {loading && <p>Loading...</p>}
 
-       {/* =========================================================
-    Summary Rendering
-    - Loading handled separately
-    - Empty state explicitly handled
-========================================================= */}
+        {isReady && !loading && hasData && (
+          <KitchenDashboard
+            renderMains={renderMains}
+            renderVegetables={renderVegetables}
+            renderCarbs={renderCarbs}
+            renderSalad={renderSalad}
+            renderDesserts={renderDesserts}
+            renderSpecialRequests={renderSpecialRequests}
+          />
+        )}
 
-{isReady && !loading && hasData && (
-  <div className="kitchen-grid">
-    {renderSection("Mains", "mains")}
-    {renderSection("Vegetables", "vegetables")}
-    {renderSection("Desserts", "desserts")}
-    {renderSection("Carbs", "carbs")}
-    {renderSection("Salad", "salad")}
-  </div>
-)}
-
-{isReady && !loading && !hasData && (
-  <div className="kitchen-empty">
-    No orders found for this date and meal.
-  </div>
-)}
+        {isReady && !loading && !hasData && (
+          <div className="kitchen-empty">
+            No orders found for this date and meal.
+          </div>
+        )}
 
         {/* Modal */}
         {modal && (
@@ -305,22 +333,40 @@ const hasData = Object.values(summary).some(
               className="kitchen-modal"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2>{modal.item}</h2>
+              {modal.type === "special" ? (
+                <>
+                  <h2>Special Requests</h2>
 
-              <div className="kitchen-room-list">
-                {modal.rooms.length === 0 ? (
-                  <p>No rooms</p>
-                ) : (
-                  modal.rooms.map((room, i) => (
-                    <div
-                      key={i}
-                      className="kitchen-room"
-                    >
-                      {room}
-                    </div>
-                  ))
-                )}
-              </div>
+                  <div className="kitchen-special-list">
+                    {modal.items.map((item, i) => (
+                      <div
+                        key={i}
+                        className="kitchen-special-item"
+                      >
+                        <strong>
+                          Room {item.room}
+                        </strong>
+                        <div>{item.request}</div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2>{modal.item}</h2>
+
+                  <div className="kitchen-room-list">
+                    {modal.rooms.map((room, i) => (
+                      <div
+                        key={i}
+                        className="kitchen-room"
+                      >
+                        {room}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
 
               <button
                 className="btn"

@@ -43,12 +43,36 @@
    Summary Grid
 ========================= */
 
-.kitchen-grid {
-  display: grid;
-  gap: var(--spacing-lg);
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+/* =========================================================
+   Kitchen Dashboard Layout
+   ---------------------------------------------------------
+   Structured 3-row dashboard.
+   2 columns default.
+   Stacks only on small mobile.
+========================================================= */
+
+.kitchen-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
 }
 
+.kitchen-row {
+  display: flex;
+  gap: var(--spacing-lg);
+}
+
+/* Each section takes equal width */
+.kitchen-row > * {
+  flex: 1;
+}
+
+/* Small mobile fallback */
+@media (max-width: 600px) {
+  .kitchen-row {
+    flex-direction: column;
+  }
+}
 .kitchen-section {
   background: var(--color-surface);
   border-radius: var(--radius-md);

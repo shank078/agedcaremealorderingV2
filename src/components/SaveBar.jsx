@@ -32,46 +32,30 @@ const hasAnySelection =
   selected?.dessert?.length > 0 ||
   selected?.specialRequest?.trim() !== "";
 
-// ✅ Disable only if:
-// - no resident
+// Disable only if:
 // - no menu loaded
 // - nothing selected
-// - currently saving
 const isDisabled =
-
   !currentMenu ||
-  !hasAnySelection ||
-  status === "saving";
+  !resident;
 
-  async function handleClick() {
-    if (isDisabled) return;
+async function handleClick() {
+  if (isDisabled) return;
 
-    // Immediate UI feedback
-    setStatus("saving");
+  // First run validation
+  const success = await handleSave();
 
-    try {
-     const success = await handleSave();
+  if (!success) {
+    return; // Stop if validation failed
+  }
 
-if (success) {
+  // 🔥 Only show success if validation passed
   setStatus("success");
 
   setTimeout(() => {
     setStatus("idle");
   }, 2000);
-} else {
-  setStatus("idle");
 }
-
-      // Reset back to idle after 2 seconds
-      setTimeout(() => {
-        setStatus("idle");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
-      setStatus("idle");
-    }
-  }
-
   return (
     <div className="save-container">
       <button
@@ -81,11 +65,9 @@ if (success) {
         onClick={handleClick}
         disabled={isDisabled}
       >
-        {status === "saving"
-          ? "Saving..."
-          : status === "success"
-          ? "Order Saved ✓"
-          : "Save Order"}
+      {status === "success"
+  ? "Order Saved ✓"
+  : "Save Order"}
       </button>
 
       {status === "success" && (

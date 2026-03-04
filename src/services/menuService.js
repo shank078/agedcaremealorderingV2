@@ -5,16 +5,15 @@ import { db } from "../firebase/firebaseConfig";
 
 export async function getMenuByDate(dateString) {
   try {
-    const lunchRef = doc(db, "menus", dateString, "meals", "Lunch");
-    const dinnerRef = doc(db, "menus", dateString, "meals", "Dinner");
+    const menuRef = doc(db, "menus", dateString);
+    const menuSnap = await getDoc(menuRef);
 
-    const lunchSnap = await getDoc(lunchRef);
-    const dinnerSnap = await getDoc(dinnerRef);
+    if (!menuSnap.exists()) {
+      return null;
+    }
 
-    return {
-      lunch: lunchSnap.exists() ? lunchSnap.data() : null,
-      dinner: dinnerSnap.exists() ? dinnerSnap.data() : null,
-    };
+    return menuSnap.data(); // contains { lunch, dinner }
+    
   } catch (error) {
     console.error("Error fetching menu:", error);
     throw error;

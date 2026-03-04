@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 
@@ -36,16 +36,20 @@ function formatDate(date) {
 
 export default function KitchenPage() {
 
-  /* =========================================================
-     Date Setup
-  ========================================================= */
+/* =========================================================
+   Date Setup (Stable Values)
+========================================================= */
 
-  const todayDate = new Date();
-  const tomorrowDate = new Date();
-  tomorrowDate.setDate(todayDate.getDate() + 1);
+const today = useMemo(() => {
+  const d = new Date();
+  return formatDate(d);
+}, []);
 
-  const today = formatDate(todayDate);
-  const tomorrow = formatDate(tomorrowDate);
+const tomorrow = useMemo(() => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return formatDate(d);
+}, []);
 
   /* =========================================================
      State
@@ -73,7 +77,7 @@ export default function KitchenPage() {
      Groups data deterministically.
   ========================================================= */
 
-  async function loadKitchenData() {
+const loadKitchenData = useCallback(async () => {
 
     if (!selectedDate || !mealType) return;
 
@@ -155,16 +159,15 @@ export default function KitchenPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [selectedDate, mealType]);
 
   /* =========================================================
      Auto Load
   ========================================================= */
 
-  useEffect(() => {
-    if (!selectedDate || !mealType) return;
-    loadKitchenData();
-  }, [selectedDate, mealType]);
+ useEffect(() => {
+  loadKitchenData();
+}, [loadKitchenData]);
 
   /* =========================================================
      Modal Logic

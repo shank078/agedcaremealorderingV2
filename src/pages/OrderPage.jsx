@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { getMenuByDate } from "../services/menuService";
 import { getActiveResidents } from "../services/residentService";
 import { saveResidentOrder, getResidentOrder } from "../services/orderService";
-
 import DateSelector from "../components/DateSelector";
 import MealSelector from "../components/MealSelector";
 import RoomLookup from "../components/RoomLookup";
@@ -28,16 +27,20 @@ function formatDate(date) {
 
 export default function OrderPage() {
 
-  /* =========================
-     Date Setup
-  ========================= */
+ /* =========================
+   Date Setup (Stable Values)
+========================= */
 
-  const todayDate = new Date();
-  const tomorrowDate = new Date();
-  tomorrowDate.setDate(todayDate.getDate() + 1);
+const today = useMemo(() => {
+  const d = new Date();
+  return formatDate(d);
+}, []);
 
-  const today = formatDate(todayDate);
-  const tomorrow = formatDate(tomorrowDate);
+const tomorrow = useMemo(() => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return formatDate(d);
+}, []);
 
   /* =========================
      State
@@ -57,7 +60,13 @@ export default function OrderPage() {
 
   const [menu, setMenu] = useState(null);
   const [menuLoading, setMenuLoading] = useState(false);
-
+/* =========================
+   Resident Identity Tracker
+   - Tracks previous resident ID
+   - Used to detect true resident switch
+   - Prevents wiping selections on temporary null
+========================= */
+const previousResidentIdRef = useRef(null);
   const [selected, setSelected] = useState({
     main: "",
     veg: [],
@@ -77,21 +86,33 @@ export default function OrderPage() {
       setResidents(data);
     }
     loadResidents();
-  }, []);
+ }, [today, tomorrow]);
+
+  // 🔥 Preload today & tomorrow menu once (ordering speed boost)
+useEffect(() => {
+  async function preloadMenus() {
+    await Promise.all([
+      getMenuByDate(today),
+      getMenuByDate(tomorrow),
+    ]);
+  }
+
+  preloadMenus();
+}, [today, tomorrow]);
 
   // Load menu
-  useEffect(() => {
-    if (!selectedDate || !mealType) return;
+ useEffect(() => {
+  if (!selectedDate) return;
 
-    async function loadMenu() {
-      setMenuLoading(true);
-      const data = await getMenuByDate(selectedDate);
-      setMenu(data);
-      setMenuLoading(false);
-    }
+  async function loadMenu() {
+    setMenuLoading(true);
+    const data = await getMenuByDate(selectedDate);
+    setMenu(data);
+    setMenuLoading(false);
+  }
 
-    loadMenu();
-  }, [selectedDate, mealType]);
+  loadMenu();
+}, [selectedDate]);
 
   // Find resident when room changes
   useEffect(() => {
@@ -131,18 +152,46 @@ useEffect(() => {
 
     const mealKey = mealType?.toLowerCase();
 
-    // Identity guard
-    if (!resident?.id || !selectedDate || !mealKey || !currentMenu) {
-      setSelected({
-        main: "",
-        veg: [],
-        dessert: [],
-        salad: false,
-        specialRequest: "",
-      });
-      setExistingOrderMessage("");
-      return;
-    }
+  // =========================
+// Guard: Require date + meal + menu
+// Do NOT wipe selections here
+// =========================
+
+if (!selectedDate || !mealKey || !currentMenu) {
+  return;
+}
+
+// =========================
+// Guard: Resident temporarily missing (user typing)
+// Do NOT wipe selections
+// =========================
+
+if (!resident?.id) {
+  return;
+}
+// =========================
+// Identity Change Detection
+// Reset selections ONLY when
+// switching to a different resident
+// =========================
+
+if (
+  previousResidentIdRef.current &&
+  previousResidentIdRef.current !== resident.id
+) {
+  setSelected({
+    main: "",
+    veg: [],
+    dessert: [],
+    salad: false,
+    specialRequest: "",
+  });
+
+  setExistingOrderMessage("");
+}
+
+// Update tracker
+previousResidentIdRef.current = resident.id;
 
     const existing = await getResidentOrder(
       selectedDate,
@@ -193,51 +242,47 @@ useEffect(() => {
      Handlers
   ========================= */
 
-  async function handleSave() {
-
-    if (!resident) {
-      setRoomError("Please enter a valid room number.");
-      return false;
-    }
-
-    if (!currentMenu) return false;
-
-    // =====================================================
-// Convert Selected Keys to Structured Objects
-// Matches new menu format: arrays with { id, name }
-// =====================================================
-
-// Find selected main object
-const selectedMainObj = currentMenu?.mains?.find(
-  (item) => item.id === selected.main
-) || null;
-
-// Find selected vegetable objects
-const selectedVegObjs = currentMenu?.vegetables?.filter(
-  (item) => selected.veg.includes(item.id)
-) || [];
-
-// Find selected dessert objects
-const selectedDessertObjs = currentMenu?.desserts?.filter(
-  (item) => selected.dessert.includes(item.id)
-) || [];
-
-const convertSelections = {
-  main: selectedMainObj,
-  carb: currentMenu?.carb || null,
-  veg: selectedVegObjs,
-  dessert: selectedDessertObjs,
-  salad: selected.salad,
-  specialRequest: selected.specialRequest.trim(),
-};
-
-    await saveResidentOrder(selectedDate, resident.id, {
-      roomNumber: resident.roomNumber,
-      [mealType.toLowerCase()]: convertSelections,
-    });
-
-    return true;
+const handleSave = useCallback(async () => {
+  if (!resident) {
+    setRoomError("Please enter a valid room number.");
+    return false;
   }
+
+  if (!currentMenu) return false;
+
+  const selectedMainObj =
+    currentMenu?.mains?.find(
+      (item) => item.id === selected.main
+    ) || null;
+
+  const selectedVegObjs =
+    currentMenu?.vegetables?.filter(
+      (item) => selected.veg.includes(item.id)
+    ) || [];
+
+  const selectedDessertObjs =
+    currentMenu?.desserts?.filter(
+      (item) => selected.dessert.includes(item.id)
+    ) || [];
+
+  const convertSelections = {
+    main: selectedMainObj,
+    carb: currentMenu?.carb || null,
+    veg: selectedVegObjs,
+    dessert: selectedDessertObjs,
+    salad: selected.salad,
+    specialRequest: selected.specialRequest.trim(),
+  };
+
+  await saveResidentOrder(selectedDate, resident.id, {
+    roomNumber: resident.roomNumber,
+    [mealType.toLowerCase()]: convertSelections,
+  });
+
+
+
+  return true;
+}, [resident, currentMenu, selected, selectedDate, mealType]);
 
   /* =========================
      Render
@@ -293,14 +338,13 @@ const convertSelections = {
           </div>
         )}
 
-        <MenuSection
-          selectedDate={selectedDate}
-          mealType={mealType}
-          menuLoading={menuLoading}
-          currentMenu={currentMenu}
-          selected={selected}
-          setSelected={setSelected}
-        />
+      <MenuSection
+  selectedDate={selectedDate}
+  mealType={mealType}
+  currentMenu={currentMenu}
+  selected={selected}
+  setSelected={setSelected}
+/>
 
         <SaveBar
           selectedDate={selectedDate}

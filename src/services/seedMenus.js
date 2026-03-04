@@ -82,51 +82,45 @@ export async function seedMenus() {
       const dessertTriple = dessertsList[index % dessertsList.length];
       const carb = carbsList[index % carbsList.length];
 
-      /* =========================
-         Lunch
-      ========================= */
-      await setDoc(doc(db, "menus", dateString, "meals", "Lunch"), {
-        mains: [
-          { id: "m1", name: lunchMainPair[0] },
-          { id: "m2", name: lunchMainPair[1] },
-        ],
+/* =========================
+   Save Full Day Menu (1 Document Instead of 2)
+========================= */
 
-        vegetables: [
-          { id: "v1", name: vegPair[0] },
-          { id: "v2", name: vegPair[1] },
-        ],
+await setDoc(doc(db, "menus", dateString), {
+  lunch: {
+    mains: [
+      { id: "m1", name: lunchMainPair[0] },
+      { id: "m2", name: lunchMainPair[1] },
+    ],
+    vegetables: [
+      { id: "v1", name: vegPair[0] },
+      { id: "v2", name: vegPair[1] },
+    ],
+    desserts: [
+      { id: "d1", name: dessertTriple[0] },
+      { id: "d2", name: dessertTriple[1] },
+      { id: "d3", name: dessertTriple[2] },
+    ],
+    carb: carb,
+  },
 
-        desserts: [
-          { id: "d1", name: dessertTriple[0] },
-          { id: "d2", name: dessertTriple[1] },
-          { id: "d3", name: dessertTriple[2] },
-        ],
-
-        carb: carb,
-      });
-
-      /* =========================
-         Dinner
-      ========================= */
-      await setDoc(doc(db, "menus", dateString, "meals", "Dinner"), {
-        mains: [
-          { id: "m1", name: dinnerMainPair[0] },
-          { id: "m2", name: dinnerMainPair[1] },
-        ],
-
-        vegetables: [
-          { id: "v1", name: vegPair[0] },
-          { id: "v2", name: vegPair[1] },
-        ],
-
-        desserts: [
-          { id: "d1", name: dessertTriple[0] },
-          { id: "d2", name: dessertTriple[1] },
-          { id: "d3", name: dessertTriple[2] },
-        ],
-
-        carb: carb,
-      });
+  dinner: {
+    mains: [
+      { id: "m1", name: dinnerMainPair[0] },
+      { id: "m2", name: dinnerMainPair[1] },
+    ],
+    vegetables: [
+      { id: "v1", name: vegPair[0] },
+      { id: "v2", name: vegPair[1] },
+    ],
+    desserts: [
+      { id: "d1", name: dessertTriple[0] },
+      { id: "d2", name: dessertTriple[1] },
+      { id: "d3", name: dessertTriple[2] },
+    ],
+    carb: carb,
+  }
+});
 
       index++;
     }

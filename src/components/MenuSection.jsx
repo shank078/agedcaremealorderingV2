@@ -1,9 +1,8 @@
-import { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect } from "react";
 
-export default function MenuSection({
+function MenuSection({
   selectedDate,
   mealType,
-  menuLoading,
   currentMenu,
   selected,
   setSelected,
@@ -122,17 +121,14 @@ const renderOptions = (items, category, isMulti = false, maxLimit = null) => {
      UI States
   ========================= */
 
-  if (menuLoading) {
-    return <div className="menu-loading">Loading menu...</div>;
-  }
-
-  if (!menuLoading && !currentMenu) {
-    return (
-      <div className="menu-error">
-        No {mealType} menu available
-      </div>
-    );
-  }
+ 
+ if (!currentMenu) {
+  return (
+    <div className="menu-error">
+      No {mealType} menu available
+    </div>
+  );
+}
 
   /* =========================
      Render
@@ -222,3 +218,4 @@ const renderOptions = (items, category, isMulti = false, maxLimit = null) => {
     </>
   );
 }
+export default React.memo(MenuSection);

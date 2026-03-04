@@ -1,24 +1,4 @@
 /* =========================
-   Kitchen Page Layout
-========================= */
-
-.kitchen-page {
-  display: flex;
-  justify-content: center;
-  padding: var(--spacing-lg) var(--spacing-md);
-  background: var(--color-background);
-}
-
-.kitchen-card {
-  width: 100%;
-  max-width: 900px; /* slightly wider than order page */
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
-}
-
-/* =========================
    Header
 ========================= */
 
@@ -186,4 +166,19 @@
     color: black;
   }
 
+}
+/* =========================
+   Empty State
+   ---------------------------------------------------------
+   Visible feedback when no orders exist.
+========================= */
+
+.kitchen-empty {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  text-align: center;
+  font-weight: var(--font-weight-medium);
 }

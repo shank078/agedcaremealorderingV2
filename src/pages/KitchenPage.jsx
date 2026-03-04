@@ -1,32 +1,65 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
+
+import DateSelector from "../components/DateSelector";
+import MealSelector from "../components/MealSelector";
+
 import "../styles/KitchenPage.css";
+
+/* =========================================================
+   Utility
+   ---------------------------------------------------------
+   Local-safe date formatting (same as OrderPage)
+========================================================= */
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 /* =========================================================
    KitchenPage
    ---------------------------------------------------------
    Operational dashboard for kitchen team.
-   - Groups by category (Mains, Vegetables, Desserts, Carbs)
-   - Sorted descending by count
-   - Clickable counts reveal room numbers
-   - Production-safe structure
+
+   UX Flow:
+   1. Select date (Today / Tomorrow / Custom)
+   2. Select meal (Lunch / Dinner)
+   3. Header collapses to summary title
+   4. Data auto-loads
+   5. Sections grouped + sorted descending
+   6. Click count → show room numbers
 ========================================================= */
 
 export default function KitchenPage() {
 
   /* =========================================================
+     Date Setup (Same Pattern as OrderPage)
+  ========================================================= */
+
+  const todayDate = new Date();
+  const tomorrowDate = new Date();
+  tomorrowDate.setDate(todayDate.getDate() + 1);
+
+  const today = formatDate(todayDate);
+  const tomorrow = formatDate(tomorrowDate);
+
+  /* =========================================================
      State
   ========================================================= */
 
-  const [selectedDate, setSelectedDate] = useState("");
-  const [mealType, setMealType] = useState("Lunch");
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [mealType, setMealType] = useState(null);
 
   const [summary, setSummary] = useState({
     mains: {},
     vegetables: {},
     desserts: {},
     carbs: {},
+    salad: {},
   });
 
   const [roomLists, setRoomLists] = useState({});
@@ -35,14 +68,14 @@ export default function KitchenPage() {
 
   /* =========================================================
      Data Loader
+     ---------------------------------------------------------
+     Groups data by category.
+     Fully defensive against undefined structures.
   ========================================================= */
 
   async function loadKitchenData() {
 
-    if (!selectedDate) {
-      alert("Please select a date.");
-      return;
-    }
+    if (!selectedDate || !mealType) return;
 
     try {
       setLoading(true);
@@ -51,12 +84,12 @@ export default function KitchenPage() {
         collection(db, "orders", selectedDate, "residents")
       );
 
-      // Structured grouping
       const groupedCounts = {
         mains: {},
         vegetables: {},
         desserts: {},
         carbs: {},
+        salad: {},
       };
 
       const groupedRooms = {
@@ -64,9 +97,9 @@ export default function KitchenPage() {
         vegetables: {},
         desserts: {},
         carbs: {},
+        salad: {},
       };
 
-      // Utility: Add item to group
       function addItem(group, name, room) {
         if (!name) return;
 
@@ -81,7 +114,7 @@ export default function KitchenPage() {
 
       snapshot.forEach((doc) => {
         const data = doc.data();
-        const meal = data[mealType.toLowerCase()];
+        const meal = data?.[mealType.toLowerCase()];
         if (!meal) return;
 
         const room = data.roomNumber;
@@ -101,6 +134,11 @@ export default function KitchenPage() {
         meal.dessert?.forEach((d) =>
           addItem("desserts", d.name, room)
         );
+
+        // SALAD
+        if (meal.salad) {
+          addItem("salad", "Salad", room);
+        }
       });
 
       setSummary(groupedCounts);
@@ -113,6 +151,17 @@ export default function KitchenPage() {
       setLoading(false);
     }
   }
+
+  /* =========================================================
+     Auto Load Trigger
+     ---------------------------------------------------------
+     Kitchen behaves reactively like OrderPage.
+  ========================================================= */
+
+  useEffect(() => {
+    if (!selectedDate || !mealType) return;
+    loadKitchenData();
+  }, [selectedDate, mealType]);
 
   /* =========================================================
      Modal Handler
@@ -130,8 +179,8 @@ export default function KitchenPage() {
 
   /* =========================================================
      Render Section
-     - Descending order
-     - Clean grouping
+     ---------------------------------------------------------
+     Sorted descending by count.
   ========================================================= */
 
   function renderSection(title, groupKey) {
@@ -139,7 +188,7 @@ export default function KitchenPage() {
     const data = summary[groupKey] || {};
 
     const sorted = Object.entries(data)
-      .sort((a, b) => b[1] - a[1]); // DESC
+      .sort((a, b) => b[1] - a[1]);
 
     if (sorted.length === 0) return null;
 
@@ -166,63 +215,85 @@ export default function KitchenPage() {
   }
 
   /* =========================================================
+     Derived UI State
+  ========================================================= */
+
+  const isReady = selectedDate && mealType;
+  /* =========================================================
+   Derived Data State
+   ---------------------------------------------------------
+   Determines if any section has real data.
+   Prevents blank UI rendering.
+========================================================= */
+
+const hasData = Object.values(summary).some(
+  (group) => Object.keys(group).length > 0
+);
+
+  /* =========================================================
      Render
   ========================================================= */
 
   return (
-    <div className="kitchen-page">
-      <div className="kitchen-card">
+    <div className="page">
+      <div className="order-card">
 
-        <h1 className="kitchen-title">
-          Kitchen Summary
-        </h1>
+        {!isReady ? (
+          <>
+            <h1 className="page-title">
+              Kitchen Summary
+            </h1>
 
-        {/* Controls */}
-        <div className="kitchen-controls">
+            <DateSelector
+              today={today}
+              tomorrow={tomorrow}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              setMealType={setMealType}
+            />
 
-          <input
-            type="date"
-            className="kitchen-date"
-            value={selectedDate}
-            onChange={(e) =>
-              setSelectedDate(e.target.value)
-            }
-          />
-
-          <select
-            className="kitchen-select"
-            value={mealType}
-            onChange={(e) =>
-              setMealType(e.target.value)
-            }
+            <MealSelector
+              selectedDate={selectedDate}
+              mealType={mealType}
+              setMealType={setMealType}
+            />
+          </>
+        ) : (
+          <h1
+            className="order-summary-title"
+            onClick={() => setMealType(null)}
           >
-            <option>Lunch</option>
-            <option>Dinner</option>
-          </select>
+            {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-AU", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })} ({mealType})
+          </h1>
+        )}
 
-          <button
-            className="btn"
-            onClick={loadKitchenData}
-          >
-            Load
-          </button>
-
-        </div>
-
-        {/* Loading */}
         {loading && <p>Loading...</p>}
 
-        {/* Summary Sections */}
-        {!loading && (
-          <div className="kitchen-grid">
+       {/* =========================================================
+    Summary Rendering
+    - Loading handled separately
+    - Empty state explicitly handled
+========================================================= */}
 
-            {renderSection("Mains", "mains")}
-            {renderSection("Vegetables", "vegetables")}
-            {renderSection("Desserts", "desserts")}
-            {renderSection("Carbs", "carbs")}
+{isReady && !loading && hasData && (
+  <div className="kitchen-grid">
+    {renderSection("Mains", "mains")}
+    {renderSection("Vegetables", "vegetables")}
+    {renderSection("Desserts", "desserts")}
+    {renderSection("Carbs", "carbs")}
+    {renderSection("Salad", "salad")}
+  </div>
+)}
 
-          </div>
-        )}
+{isReady && !loading && !hasData && (
+  <div className="kitchen-empty">
+    No orders found for this date and meal.
+  </div>
+)}
 
         {/* Modal */}
         {modal && (

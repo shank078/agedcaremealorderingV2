@@ -7,6 +7,7 @@ import MealSelector from "../components/MealSelector";
 import RoomLookup from "../components/RoomLookup";
 import MenuSection from "../components/MenuSection";
 import SaveBar from "../components/SaveBar";
+import { normalizeRoomInput } from "../utils/roomUtils";
 
 /* =========================
    Utility
@@ -115,18 +116,26 @@ useEffect(() => {
 }, [selectedDate]);
 
   // Find resident when room changes
-  useEffect(() => {
-    const found = residents.find(
-      (r) => r.roomNumber === roomNumber
-    );
+ useEffect(() => {
 
-    setResident(found || null);
+  const roomSort = normalizeRoomInput(roomNumber);
 
-    if (found) {
-      setRoomError("");
-    }
+  if (!roomSort) {
+    setResident(null);
+    return;
+  }
 
-  }, [roomNumber, residents]);
+  const found = residents.find(
+    (r) => r.roomSort === roomSort
+  );
+
+  setResident(found || null);
+
+  if (found) {
+    setRoomError("");
+  }
+
+}, [roomNumber, residents]);
 
   /* =========================
      Derived Data

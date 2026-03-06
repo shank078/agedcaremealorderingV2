@@ -186,6 +186,7 @@ if (!resident?.id) {
 
 if (
   previousResidentIdRef.current &&
+  resident?.id &&
   previousResidentIdRef.current !== resident.id
 ) {
   setSelected({
@@ -200,8 +201,23 @@ if (
 }
 
 // Update tracker
-previousResidentIdRef.current = resident.id;
+// Detect if user already started an order
+const userStartedOrder =
+  selected.main ||
+  selected.veg.length > 0 ||
+  selected.dessert.length > 0 ||
+  selected.salad ||
+  selected.specialRequest;
 
+// If room is entered AFTER user started selecting food,
+// do not overwrite selections
+if (!previousResidentIdRef.current && userStartedOrder) {
+  previousResidentIdRef.current = resident.id;
+  return;
+}
+
+// Update resident tracker AFTER checks
+previousResidentIdRef.current = resident.id;
     const existing = await getResidentOrder(
       selectedDate,
       resident.id
@@ -321,9 +337,12 @@ const handleSave = useCallback(async () => {
           </>
         ) : (
           <h1
-            className="order-summary-title"
-            onClick={() => setMealType(null)}
-          >
+  className="order-summary-title"
+  onClick={() => {
+    setMealType(null);
+    setExistingOrderMessage("");
+  }}
+>
             {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-AU", {
               day: "numeric",
               month: "short",

@@ -291,3 +291,35 @@
   font-size: 14px;
   margin-bottom: 15px;
 }
+.date-input:invalid {
+  color: #888;
+}
+
+.date-input::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.date-input:focus::-webkit-datetime-edit {
+  color: #333;
+}
+
+.custom-date-slot {
+  position: relative;
+  display: inline-block;
+}
+
+.date-placeholder {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 14px;
+
+  pointer-events: none;   /* 👈 important */
+}
+
+.date-input {
+  position: relative;
+  background: transparent;
+}

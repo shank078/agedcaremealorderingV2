@@ -1,3 +1,4 @@
+import { useRef } from "react";
 /* =========================
    Date Selector Component
 ========================= */
@@ -9,7 +10,7 @@ export default function DateSelector({
   setSelectedDate,
   setMealType,
 }) {
-
+const dateInputRef = useRef(null);
  function handleCustomDate(e) {
   const selected = new Date(e.target.value);
   const formatted = selected.toISOString().split("T")[0];
@@ -48,13 +49,20 @@ export default function DateSelector({
       </div>
 
       {/* Custom Date Picker */}
-      <div className="custom-date-slot">
-        <input
-          type="date"
-          className="date-input"
-          onChange={handleCustomDate}
-        />
-      </div>
+     <div className="custom-date-slot">
+  {!selectedDate && (
+    <span className="date-placeholder">Select date</span>
+  )}
+
+ <input
+  type="date"
+  ref={dateInputRef}
+  className="date-input"
+  value={selectedDate || ""}
+  onChange={handleCustomDate}
+  onClick={() => dateInputRef.current?.showPicker()}
+/>
+</div>
 
     </div>
   );
